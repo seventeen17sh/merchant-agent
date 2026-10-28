@@ -80,7 +80,7 @@ python -m merchant.seed
 python -m streamlit run app.py --server.address 127.0.0.1
 ```
 
-然后打开终端显示的本机页面地址。也可以在 Mac 上双击项目根目录的 `启动.command`。
+然后打开终端显示的本机页面地址。在 Mac 上，也可以在项目根目录运行 `zsh 启动.command`。
 
 **没有 API 密钥也能查看演示数据、运行预置 SQL 和本地文档检索。**自由中文提问与连续追问需要使用者自行配置真实 DeepSeek API 密钥；未配置或调用失败时页面会明确提示。
 
