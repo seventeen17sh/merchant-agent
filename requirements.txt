@@ -1,0 +1,7 @@
+streamlit>=1.42,<2
+langchain>=1.0,<2
+langchain-openai>=1.0,<2
+sqlglot>=26,<31
+python-dotenv>=1.0,<2
+pandas>=2.2,<3
+pytest>=8,<10
