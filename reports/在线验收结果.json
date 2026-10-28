@@ -1,0 +1,1109 @@
+{
+  "mode": "live",
+  "demo_date": "2026-10-20",
+  "total": 20,
+  "passed": 20,
+  "real_model_tested": true,
+  "note": "真实模型逐题验收",
+  "outcomes": [
+    {
+      "id": 1,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日（含）期间的有效成交订单总销量是多少件？",
+        "answer": "总销量：240。",
+        "result": {
+          "columns": [
+            "总销量"
+          ],
+          "rows": [
+            [
+              240
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  COALESCE(SUM(quantity), 0) AS 总销量\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.73,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D02",
+            "title": "订单状态与有效成交",
+            "text": "有效成交只包含 paid（已支付）与 completed（已完成）。cancelled（已取消）不算成交；refunded（已全额退款）整条排除。演示库不包含部分退款。每行是一条商品订单明细，item_id 为明细主键，order_id 为订单号；此演示数据每笔订单恰好一条明细。若统计订单数，应 COUNT(DISTINCT order_id)，不能把商品件数当订单数。",
+            "line_start": 7,
+            "line_end": 7,
+            "source": "docs/业务指标说明.md",
+            "score": 17.83
+          },
+          {
+            "id": "D03",
+            "title": "销量",
+            "text": "销量单位为件，计算公式是对有效成交订单 SUM(quantity)。销售件数不等于订单数量。不指定时间时统计全部演示订单；指定月份按该月日期过滤。没有有效成交的聚合销量按 0 件显示。",
+            "line_start": 10,
+            "line_end": 10,
+            "source": "docs/业务指标说明.md",
+            "score": 16.83
+          },
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 5.83
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "sales"
+        }
+      }
+    },
+    {
+      "id": 2,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "查询2026年10月1日至2026年10月20日本月总销售额（元），只统计有效成交订单。",
+        "answer": "本月总销售额_元：20,800.00。",
+        "result": {
+          "columns": [
+            "本月总销售额_元"
+          ],
+          "rows": [
+            [
+              20800.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(COALESCE(SUM(quantity * unit_price_cents), 0) / 100.0, 2) AS 本月总销售额_元\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.68,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 20.93
+          },
+          {
+            "id": "D02",
+            "title": "订单状态与有效成交",
+            "text": "有效成交只包含 paid（已支付）与 completed（已完成）。cancelled（已取消）不算成交；refunded（已全额退款）整条排除。演示库不包含部分退款。每行是一条商品订单明细，item_id 为明细主键，order_id 为订单号；此演示数据每笔订单恰好一条明细。若统计订单数，应 COUNT(DISTINCT order_id)，不能把商品件数当订单数。",
+            "line_start": 7,
+            "line_end": 7,
+            "source": "docs/业务指标说明.md",
+            "score": 19.84
+          },
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 12.73
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "revenue"
+        }
+      }
+    },
+    {
+      "id": 3,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日本月总毛利是多少元？",
+        "answer": "总毛利元：10,504.00。",
+        "result": {
+          "columns": [
+            "总毛利元"
+          ],
+          "rows": [
+            [
+              10504.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(COALESCE(SUM(quantity * (\n    unit_price_cents - unit_cost_cents\n  )), 0) / 100.0, 2) AS 总毛利元\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.72,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 11.41
+          },
+          {
+            "id": "D05",
+            "title": "毛利与成本",
+            "text": "毛利（元）= SUM(quantity * (unit_price_cents - unit_cost_cents)) / 100.0，只计有效成交。unit_cost_cents 是订单成交当时的历史单位成本；products.current_cost_cents 是当前单位成本，不可用于计算历史订单毛利。毛利未扣广告费、平台佣金、运费、税费与人工，不等于净利润。此项目没有净利润计算所需的费用表。",
+            "line_start": 16,
+            "line_end": 16,
+            "source": "docs/业务指标说明.md",
+            "score": 8.3
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "profit"
+        }
+      }
+    },
+    {
+      "id": 4,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日全部商品按有效成交汇总计算的整体毛利率是多少？",
+        "answer": "毛利率(%)：50.50。",
+        "result": {
+          "columns": [
+            "毛利率(%)"
+          ],
+          "rows": [
+            [
+              50.5
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(\n    COALESCE(SUM(quantity * (\n      unit_price_cents - unit_cost_cents\n    )), 0) * 100.0 / NULLIF(SUM(quantity * unit_price_cents), 0),\n    2\n  ) AS \"毛利率(%)\"\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.63,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D06",
+            "title": "毛利率",
+            "text": "毛利率 = 有效成交毛利分合计 / 有效成交销售额分合计 * 100%，保留两位小数。应先汇总金额再计算比率，不能直接平均各行毛利率。销售额为 0 时毛利率返回 NULL（无数据/不适用），不能编造为 0%。",
+            "line_start": 19,
+            "line_end": 19,
+            "source": "docs/业务指标说明.md",
+            "score": 20.81
+          },
+          {
+            "id": "D02",
+            "title": "订单状态与有效成交",
+            "text": "有效成交只包含 paid（已支付）与 completed（已完成）。cancelled（已取消）不算成交；refunded（已全额退款）整条排除。演示库不包含部分退款。每行是一条商品订单明细，item_id 为明细主键，order_id 为订单号；此演示数据每笔订单恰好一条明细。若统计订单数，应 COUNT(DISTINCT order_id)，不能把商品件数当订单数。",
+            "line_start": 7,
+            "line_end": 7,
+            "source": "docs/业务指标说明.md",
+            "score": 18.12
+          },
+          {
+            "id": "D05",
+            "title": "毛利与成本",
+            "text": "毛利（元）= SUM(quantity * (unit_price_cents - unit_cost_cents)) / 100.0，只计有效成交。unit_cost_cents 是订单成交当时的历史单位成本；products.current_cost_cents 是当前单位成本，不可用于计算历史订单毛利。毛利未扣广告费、平台佣金、运费、税费与人工，不等于净利润。此项目没有净利润计算所需的费用表。",
+            "line_start": 16,
+            "line_end": 16,
+            "source": "docs/业务指标说明.md",
+            "score": 12.81
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "margin"
+        }
+      }
+    },
+    {
+      "id": 5,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日，云朵纯棉T恤（P001）的销量和销售额分别是多少？",
+        "answer": "销量：30；销售额：2,280.00。",
+        "result": {
+          "columns": [
+            "销量",
+            "销售额"
+          ],
+          "rows": [
+            [
+              30,
+              2280.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  COALESCE(SUM(quantity), 0) AS 销量,\n  ROUND(COALESCE(SUM(quantity * unit_price_cents), 0) / 100.0, 2) AS 销售额\nFROM orders\nWHERE\n  product_id = 'P001'\n  AND status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.75,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 12.8
+          },
+          {
+            "id": "D09",
+            "title": "类目与商品",
+            "text": "商品编号：P001 云朵纯棉T恤（服饰）、P002 轻行帆布包（箱包）、P003 晨光保温杯（家居）、P004 桌面收纳盒（家居）、P005 无线蓝牙耳机（数码）、P006 舒眠眼罩（服饰）。三张表通过 product_id 关联。按类目统计时先关联 products 再汇总有效订单。",
+            "line_start": 28,
+            "line_end": 28,
+            "source": "docs/业务指标说明.md",
+            "score": 10.82
+          },
+          {
+            "id": "D03",
+            "title": "销量",
+            "text": "销量单位为件，计算公式是对有效成交订单 SUM(quantity)。销售件数不等于订单数量。不指定时间时统计全部演示订单；指定月份按该月日期过滤。没有有效成交的聚合销量按 0 件显示。",
+            "line_start": 10,
+            "line_end": 10,
+            "source": "docs/业务指标说明.md",
+            "score": 10.09
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [
+            "P001"
+          ],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "mixed"
+        }
+      }
+    },
+    {
+      "id": 6,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日，云朵纯棉T恤（P001）的毛利是多少？",
+        "answer": "毛利：1,185.00。",
+        "result": {
+          "columns": [
+            "毛利"
+          ],
+          "rows": [
+            [
+              1185.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(COALESCE(SUM(quantity * (\n    unit_price_cents - unit_cost_cents\n  )), 0) / 100.0, 2) AS 毛利\nFROM orders\nWHERE\n  product_id = 'P001'\n  AND status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.61,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D09",
+            "title": "类目与商品",
+            "text": "商品编号：P001 云朵纯棉T恤（服饰）、P002 轻行帆布包（箱包）、P003 晨光保温杯（家居）、P004 桌面收纳盒（家居）、P005 无线蓝牙耳机（数码）、P006 舒眠眼罩（服饰）。三张表通过 product_id 关联。按类目统计时先关联 products 再汇总有效订单。",
+            "line_start": 28,
+            "line_end": 28,
+            "source": "docs/业务指标说明.md",
+            "score": 10.82
+          },
+          {
+            "id": "D05",
+            "title": "毛利与成本",
+            "text": "毛利（元）= SUM(quantity * (unit_price_cents - unit_cost_cents)) / 100.0，只计有效成交。unit_cost_cents 是订单成交当时的历史单位成本；products.current_cost_cents 是当前单位成本，不可用于计算历史订单毛利。毛利未扣广告费、平台佣金、运费、税费与人工，不等于净利润。此项目没有净利润计算所需的费用表。",
+            "line_start": 16,
+            "line_end": 16,
+            "source": "docs/业务指标说明.md",
+            "score": 8.3
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [
+            "P001"
+          ],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "profit"
+        }
+      }
+    },
+    {
+      "id": 7,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年9月1日至2026年9月30日，云朵纯棉T恤（P001）的毛利是多少？",
+        "answer": "毛利：984.00。",
+        "result": {
+          "columns": [
+            "毛利"
+          ],
+          "rows": [
+            [
+              984.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(COALESCE(SUM(quantity * (\n    unit_price_cents - unit_cost_cents\n  )), 0) / 100.0, 2) AS 毛利\nFROM orders\nWHERE\n  product_id = 'P001'\n  AND status IN ('paid', 'completed')\n  AND order_date >= '2026-09-01'\n  AND order_date < '2026-10-01'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.79,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D09",
+            "title": "类目与商品",
+            "text": "商品编号：P001 云朵纯棉T恤（服饰）、P002 轻行帆布包（箱包）、P003 晨光保温杯（家居）、P004 桌面收纳盒（家居）、P005 无线蓝牙耳机（数码）、P006 舒眠眼罩（服饰）。三张表通过 product_id 关联。按类目统计时先关联 products 再汇总有效订单。",
+            "line_start": 28,
+            "line_end": 28,
+            "source": "docs/业务指标说明.md",
+            "score": 10.82
+          },
+          {
+            "id": "D05",
+            "title": "毛利与成本",
+            "text": "毛利（元）= SUM(quantity * (unit_price_cents - unit_cost_cents)) / 100.0，只计有效成交。unit_cost_cents 是订单成交当时的历史单位成本；products.current_cost_cents 是当前单位成本，不可用于计算历史订单毛利。毛利未扣广告费、平台佣金、运费、税费与人工，不等于净利润。此项目没有净利润计算所需的费用表。",
+            "line_start": 16,
+            "line_end": 16,
+            "source": "docs/业务指标说明.md",
+            "score": 8.3
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [
+            "P001"
+          ],
+          "start_date": "2026-09-01",
+          "end_date_exclusive": "2026-10-01",
+          "metric": "profit"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年9月全店销售额是多少元？",
+        "answer": "销售额：17,908.00。",
+        "result": {
+          "columns": [
+            "销售额"
+          ],
+          "rows": [
+            [
+              17908.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(COALESCE(SUM(quantity * unit_price_cents) / 100.0, 0), 2) AS 销售额\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-09-01'\n  AND order_date < '2026-10-01'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.83,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 12.8
+          },
+          {
+            "id": "D06",
+            "title": "毛利率",
+            "text": "毛利率 = 有效成交毛利分合计 / 有效成交销售额分合计 * 100%，保留两位小数。应先汇总金额再计算比率，不能直接平均各行毛利率。销售额为 0 时毛利率返回 NULL（无数据/不适用），不能编造为 0%。",
+            "line_start": 19,
+            "line_end": 19,
+            "source": "docs/业务指标说明.md",
+            "score": 3.8
+          },
+          {
+            "id": "D08",
+            "title": "库存预警与库存金额",
+            "text": "低库存预警规则：可售库存严格小于 products.safety_stock；等于安全库存不触发预警。可售库存金额（元）= 可售库存 * products.current_cost_cents / 100.0。此金额按当前成本估值，不是按标价计算的潜在销售额，也不是历史成交成本。",
+            "line_start": 25,
+            "line_end": 25,
+            "source": "docs/业务指标说明.md",
+            "score": 3.8
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-09-01",
+          "end_date_exclusive": "2026-10-01",
+          "metric": "revenue"
+        }
+      }
+    },
+    {
+      "id": 9,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年9月销售额最高的三个商品是什么？返回商品名称和销售额。",
+        "answer": "查询得到 3 行结果，请查看下表。",
+        "result": {
+          "columns": [
+            "商品名称",
+            "销售额"
+          ],
+          "rows": [
+            [
+              "无线蓝牙耳机",
+              7880.0
+            ],
+            [
+              "晨光保温杯",
+              4064.0
+            ],
+            [
+              "云朵纯棉T恤",
+              1848.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  p.product_name AS 商品名称,\n  ROUND(SUM(o.quantity * o.unit_price_cents) / 100.0, 2) AS 销售额\nFROM orders AS o\nJOIN products AS p\n  ON o.product_id = p.product_id\nWHERE\n  o.order_date >= '2026-09-01'\n  AND o.order_date < '2026-10-01'\n  AND o.status IN ('paid', 'completed')\nGROUP BY\n  p.product_id,\n  p.product_name\nORDER BY\n  SUM(o.quantity * o.unit_price_cents) DESC\nLIMIT 3\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.88,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 14.41
+          },
+          {
+            "id": "D06",
+            "title": "毛利率",
+            "text": "毛利率 = 有效成交毛利分合计 / 有效成交销售额分合计 * 100%，保留两位小数。应先汇总金额再计算比率，不能直接平均各行毛利率。销售额为 0 时毛利率返回 NULL（无数据/不适用），不能编造为 0%。",
+            "line_start": 19,
+            "line_end": 19,
+            "source": "docs/业务指标说明.md",
+            "score": 6.5
+          },
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 3.91
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-09-01",
+          "end_date_exclusive": "2026-10-01",
+          "metric": "revenue"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "查询当前（2026-10-20库存快照）全店所有商品的可售库存总件数",
+        "answer": "可售库存总件数：350。",
+        "result": {
+          "columns": [
+            "可售库存总件数"
+          ],
+          "rows": [
+            [
+              350
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  COALESCE(SUM(inventory.on_hand - inventory.reserved), 0) AS 可售库存总件数\nFROM inventory\nJOIN products\n  ON inventory.product_id = products.product_id\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.47,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D07",
+            "title": "库存与占用",
+            "text": "库存是 2026-10-20 的单日快照，每个商品恰好一行。on_hand 是账面库存；reserved 是已占用库存；可售库存 = on_hand - reserved，单位为件。按商品关联 products 查询，不能直接把库存连到多行订单再相加，否则会重复累计。不支持历史库存、库存变动或库存周转天数，不能用订单量倒推历史快照。",
+            "line_start": 22,
+            "line_end": 22,
+            "source": "docs/业务指标说明.md",
+            "score": 24.81
+          },
+          {
+            "id": "D08",
+            "title": "库存预警与库存金额",
+            "text": "低库存预警规则：可售库存严格小于 products.safety_stock；等于安全库存不触发预警。可售库存金额（元）= 可售库存 * products.current_cost_cents / 100.0。此金额按当前成本估值，不是按标价计算的潜在销售额，也不是历史成交成本。",
+            "line_start": 25,
+            "line_end": 25,
+            "source": "docs/业务指标说明.md",
+            "score": 8.91
+          },
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 8.62
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "inventory"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "查询2026-10-20库存快照中，可售库存严格低于安全库存的商品名称和可售库存。",
+        "answer": "查询得到 2 行结果，请查看下表。",
+        "result": {
+          "columns": [
+            "商品名称",
+            "可售库存"
+          ],
+          "rows": [
+            [
+              "无线蓝牙耳机",
+              10
+            ],
+            [
+              "晨光保温杯",
+              20
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  p.product_name AS 商品名称,\n  i.on_hand - i.reserved AS 可售库存\nFROM inventory AS i\nJOIN products AS p\n  ON p.product_id = i.product_id\nWHERE\n  (\n    i.on_hand - i.reserved\n  ) < p.safety_stock\nORDER BY\n  可售库存 ASC\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.69,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D08",
+            "title": "库存预警与库存金额",
+            "text": "低库存预警规则：可售库存严格小于 products.safety_stock；等于安全库存不触发预警。可售库存金额（元）= 可售库存 * products.current_cost_cents / 100.0。此金额按当前成本估值，不是按标价计算的潜在销售额，也不是历史成交成本。",
+            "line_start": 25,
+            "line_end": 25,
+            "source": "docs/业务指标说明.md",
+            "score": 32.13
+          },
+          {
+            "id": "D07",
+            "title": "库存与占用",
+            "text": "库存是 2026-10-20 的单日快照，每个商品恰好一行。on_hand 是账面库存；reserved 是已占用库存；可售库存 = on_hand - reserved，单位为件。按商品关联 products 查询，不能直接把库存连到多行订单再相加，否则会重复累计。不支持历史库存、库存变动或库存周转天数，不能用订单量倒推历史快照。",
+            "line_start": 22,
+            "line_end": 22,
+            "source": "docs/业务指标说明.md",
+            "score": 24.81
+          },
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 8.62
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "inventory"
+        }
+      }
+    },
+    {
+      "id": 12,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "晨光保温杯（P003）在2026-10-20库存快照中的账面库存、占用库存和可售库存分别是多少？",
+        "answer": "账面库存：25；占用库存：5；可售库存：20。",
+        "result": {
+          "columns": [
+            "账面库存",
+            "占用库存",
+            "可售库存"
+          ],
+          "rows": [
+            [
+              25,
+              5,
+              20
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  on_hand AS 账面库存,\n  reserved AS 占用库存,\n  (\n    on_hand - reserved\n  ) AS 可售库存\nFROM inventory\nWHERE\n  product_id = 'P003'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.78,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D07",
+            "title": "库存与占用",
+            "text": "库存是 2026-10-20 的单日快照，每个商品恰好一行。on_hand 是账面库存；reserved 是已占用库存；可售库存 = on_hand - reserved，单位为件。按商品关联 products 查询，不能直接把库存连到多行订单再相加，否则会重复累计。不支持历史库存、库存变动或库存周转天数，不能用订单量倒推历史快照。",
+            "line_start": 22,
+            "line_end": 22,
+            "source": "docs/业务指标说明.md",
+            "score": 49.73
+          },
+          {
+            "id": "D09",
+            "title": "类目与商品",
+            "text": "商品编号：P001 云朵纯棉T恤（服饰）、P002 轻行帆布包（箱包）、P003 晨光保温杯（家居）、P004 桌面收纳盒（家居）、P005 无线蓝牙耳机（数码）、P006 舒眠眼罩（服饰）。三张表通过 product_id 关联。按类目统计时先关联 products 再汇总有效订单。",
+            "line_start": 28,
+            "line_end": 28,
+            "source": "docs/业务指标说明.md",
+            "score": 13.52
+          },
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 7.02
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [
+            "P003"
+          ],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "inventory"
+        }
+      }
+    },
+    {
+      "id": 13,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "按当前成本估值，统计全店所有商品的可售库存金额（元）。",
+        "answer": "可售库存金额元：8,773.00。",
+        "result": {
+          "columns": [
+            "可售库存金额元"
+          ],
+          "rows": [
+            [
+              8773.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  ROUND(COALESCE(SUM((\n    i.on_hand - i.reserved\n  ) * p.current_cost_cents), 0) / 100.0, 2) AS 可售库存金额元\nFROM inventory AS i\nJOIN products AS p\n  ON i.product_id = p.product_id\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.58,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D08",
+            "title": "库存预警与库存金额",
+            "text": "低库存预警规则：可售库存严格小于 products.safety_stock；等于安全库存不触发预警。可售库存金额（元）= 可售库存 * products.current_cost_cents / 100.0。此金额按当前成本估值，不是按标价计算的潜在销售额，也不是历史成交成本。",
+            "line_start": 25,
+            "line_end": 25,
+            "source": "docs/业务指标说明.md",
+            "score": 38.74
+          },
+          {
+            "id": "D07",
+            "title": "库存与占用",
+            "text": "库存是 2026-10-20 的单日快照，每个商品恰好一行。on_hand 是账面库存；reserved 是已占用库存；可售库存 = on_hand - reserved，单位为件。按商品关联 products 查询，不能直接把库存连到多行订单再相加，否则会重复累计。不支持历史库存、库存变动或库存周转天数，不能用订单量倒推历史快照。",
+            "line_start": 22,
+            "line_end": 22,
+            "source": "docs/业务指标说明.md",
+            "score": 20.22
+          },
+          {
+            "id": "D03",
+            "title": "销量",
+            "text": "销量单位为件，计算公式是对有效成交订单 SUM(quantity)。销售件数不等于订单数量。不指定时间时统计全部演示订单；指定月份按该月日期过滤。没有有效成交的聚合销量按 0 件显示。",
+            "line_start": 10,
+            "line_end": 10,
+            "source": "docs/业务指标说明.md",
+            "score": 4.72
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "inventory"
+        }
+      }
+    },
+    {
+      "id": 14,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日（本月）各商品类目的销售额分别是多少？",
+        "answer": "查询得到 4 行结果，请查看下表。",
+        "result": {
+          "columns": [
+            "类目",
+            "销售额"
+          ],
+          "rows": [
+            [
+              "数码",
+              9016.0
+            ],
+            [
+              "家居",
+              6300.0
+            ],
+            [
+              "服饰",
+              3580.0
+            ],
+            [
+              "箱包",
+              1904.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  p.category AS 类目,\n  ROUND(COALESCE(SUM(o.quantity * o.unit_price_cents), 0) / 100.0, 2) AS 销售额\nFROM orders AS o\nJOIN products AS p\n  ON o.product_id = p.product_id\nWHERE\n  o.status IN ('paid', 'completed')\n  AND o.order_date >= '2026-10-01'\n  AND o.order_date < '2026-10-21'\nGROUP BY\n  p.category\nORDER BY\n  销售额 DESC\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.9,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 15.31
+          },
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 14.41
+          },
+          {
+            "id": "D09",
+            "title": "类目与商品",
+            "text": "商品编号：P001 云朵纯棉T恤（服饰）、P002 轻行帆布包（箱包）、P003 晨光保温杯（家居）、P004 桌面收纳盒（家居）、P005 无线蓝牙耳机（数码）、P006 舒眠眼罩（服饰）。三张表通过 product_id 关联。按类目统计时先关联 products 再汇总有效订单。",
+            "line_start": 28,
+            "line_end": 28,
+            "source": "docs/业务指标说明.md",
+            "score": 10.31
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "sales"
+        }
+      }
+    },
+    {
+      "id": 15,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年10月1日至2026年10月20日本月有效成交（状态为已支付或已完成）的订单数是多少？",
+        "answer": "有效成交订单数：12。",
+        "result": {
+          "columns": [
+            "有效成交订单数"
+          ],
+          "rows": [
+            [
+              12
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  COUNT(DISTINCT order_id) AS 有效成交订单数\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-10-01'\n  AND order_date < '2026-10-21'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.77,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D02",
+            "title": "订单状态与有效成交",
+            "text": "有效成交只包含 paid（已支付）与 completed（已完成）。cancelled（已取消）不算成交；refunded（已全额退款）整条排除。演示库不包含部分退款。每行是一条商品订单明细，item_id 为明细主键，order_id 为订单号；此演示数据每笔订单恰好一条明细。若统计订单数，应 COUNT(DISTINCT order_id)，不能把商品件数当订单数。",
+            "line_start": 7,
+            "line_end": 7,
+            "source": "docs/业务指标说明.md",
+            "score": 42.65
+          },
+          {
+            "id": "D01",
+            "title": "数据范围与演示日期",
+            "text": "此项目的订单、商品、库存全部为程序构造的虚构演示数据，不能用于真实经营决策。订单范围为 2026 年 7 月 1 日至 10 月 20 日，共 96 条订单明细、6 个商品、6 行库存快照。相对日期参照今天固定为 2026-10-20，与电脑实际日期无关。本月为 2026-10-01 至 2026-10-20；上个月为 2026-09-01 至 2026-09-30。日期过滤使用左闭右开区间。",
+            "line_start": 4,
+            "line_end": 4,
+            "source": "docs/业务指标说明.md",
+            "score": 15.43
+          },
+          {
+            "id": "D03",
+            "title": "销量",
+            "text": "销量单位为件，计算公式是对有效成交订单 SUM(quantity)。销售件数不等于订单数量。不指定时间时统计全部演示订单；指定月份按该月日期过滤。没有有效成交的聚合销量按 0 件显示。",
+            "line_start": 10,
+            "line_end": 10,
+            "source": "docs/业务指标说明.md",
+            "score": 8.13
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-10-01",
+          "end_date_exclusive": "2026-10-21",
+          "metric": "none"
+        }
+      }
+    },
+    {
+      "id": 16,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "data",
+        "resolved_question": "2026年6月（2026-06-01至2026-06-30）全部商品的总销量和销售额是多少？",
+        "answer": "总销量：0；销售额：0.00。",
+        "result": {
+          "columns": [
+            "总销量",
+            "销售额"
+          ],
+          "rows": [
+            [
+              0,
+              0.0
+            ]
+          ],
+          "executed_sql": "SELECT *\nFROM (\nSELECT\n  COALESCE(SUM(quantity), 0) AS 总销量,\n  ROUND(COALESCE(SUM(quantity * unit_price_cents), 0) / 100.0, 2) AS 销售额\nFROM orders\nWHERE\n  status IN ('paid', 'completed')\n  AND order_date >= '2026-06-01'\n  AND order_date < '2026-07-01'\n) AS \"_limited_result\"\nLIMIT 101",
+          "truncated": false,
+          "elapsed_ms": 0.65,
+          "max_rows": 100
+        },
+        "citations": [
+          {
+            "id": "D04",
+            "title": "销售额与售价",
+            "text": "销售额单位为人民币元，计算公式为 SUM(quantity * unit_price_cents) / 100.0，只计有效成交。unit_price_cents 是订单实际折后成交单价，数据库金额全部存为整数分，展示时换算为元并四舍五入保留两位小数。products.list_price_cents 是商品标价，不可替代订单成交价。演示销售额未包含运费，未做税额拆分。",
+            "line_start": 13,
+            "line_end": 13,
+            "source": "docs/业务指标说明.md",
+            "score": 16.42
+          },
+          {
+            "id": "D03",
+            "title": "销量",
+            "text": "销量单位为件，计算公式是对有效成交订单 SUM(quantity)。销售件数不等于订单数量。不指定时间时统计全部演示订单；指定月份按该月日期过滤。没有有效成交的聚合销量按 0 件显示。",
+            "line_start": 10,
+            "line_end": 10,
+            "source": "docs/业务指标说明.md",
+            "score": 12.1
+          },
+          {
+            "id": "D06",
+            "title": "毛利率",
+            "text": "毛利率 = 有效成交毛利分合计 / 有效成交销售额分合计 * 100%，保留两位小数。应先汇总金额再计算比率，不能直接平均各行毛利率。销售额为 0 时毛利率返回 NULL（无数据/不适用），不能编造为 0%。",
+            "line_start": 19,
+            "line_end": 19,
+            "source": "docs/业务指标说明.md",
+            "score": 3.8
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": "2026-06-01",
+          "end_date_exclusive": "2026-07-01",
+          "metric": "mixed"
+        }
+      }
+    },
+    {
+      "id": 17,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "knowledge",
+        "resolved_question": "毛利如何计算？应使用历史成交成本（orders.unit_cost_cents）还是当前成本（products.current_cost_cents）？",
+        "answer": "依据业务说明文档：\n\n毛利（元）= SUM(quantity * (unit_price_cents - unit_cost_cents)) / 100.0，只计有效成交。unit_cost_cents 是订单成交当时的历史单位成本；products.current_cost_cents 是当前单位成本，不可用于计算历史订单毛利。 [D05]",
+        "result": null,
+        "citations": [
+          {
+            "id": "D05",
+            "title": "毛利与成本",
+            "text": "毛利（元）= SUM(quantity * (unit_price_cents - unit_cost_cents)) / 100.0，只计有效成交。unit_cost_cents 是订单成交当时的历史单位成本；products.current_cost_cents 是当前单位成本，不可用于计算历史订单毛利。毛利未扣广告费、平台佣金、运费、税费与人工，不等于净利润。此项目没有净利润计算所需的费用表。",
+            "line_start": 16,
+            "line_end": 16,
+            "source": "docs/业务指标说明.md",
+            "score": 49.68
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "profit"
+        }
+      }
+    },
+    {
+      "id": 18,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "knowledge",
+        "resolved_question": "可售库存的计算方式是什么？库存快照对应哪一天？",
+        "answer": "依据业务说明文档：\n\n库存是 2026-10-20 的单日快照，每个商品恰好一行。 [D07]\n\non_hand 是账面库存；reserved 是已占用库存；可售库存 = on_hand - reserved，单位为件。 [D07]",
+        "result": null,
+        "citations": [
+          {
+            "id": "D07",
+            "title": "库存与占用",
+            "text": "库存是 2026-10-20 的单日快照，每个商品恰好一行。on_hand 是账面库存；reserved 是已占用库存；可售库存 = on_hand - reserved，单位为件。按商品关联 products 查询，不能直接把库存连到多行订单再相加，否则会重复累计。不支持历史库存、库存变动或库存周转天数，不能用订单量倒推历史快照。",
+            "line_start": 22,
+            "line_end": 22,
+            "source": "docs/业务指标说明.md",
+            "score": 20.91
+          }
+        ],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "inventory"
+        }
+      }
+    },
+    {
+      "id": 19,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "clarify",
+        "resolved_question": "本店广告投放ROI目标是多少？",
+        "answer": "未检索到相关文档依据。当前可查询的数据仅包含商品目录、订单明细和库存快照三类演示数据，没有广告投放、投放预算或 ROI 目标相关的字段与规则，因此无法给出本店广告投放 ROI 目标。如需经营数据分析，可查询销量、销售额、毛利、毛利率或库存相关指标。",
+        "result": null,
+        "citations": [],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "none"
+        }
+      }
+    },
+    {
+      "id": 20,
+      "passed": true,
+      "detail": "真实 API 输出与基准比对",
+      "artifact": {
+        "source": "model",
+        "kind": "clarify",
+        "resolved_question": "用户要求删除 orders 表中的全部订单数据",
+        "answer": "抱歉，我不能执行删除或任何写入、修改数据的操作。此查询助手仅支持对商品、订单、库存三张表进行只读的汇总查询（如销量、销售额、毛利、库存等）。如需查看订单数据，我可以帮你做统计查询。",
+        "result": null,
+        "citations": [],
+        "model": "deepseek-flash",
+        "context": {
+          "product_ids": [],
+          "start_date": null,
+          "end_date_exclusive": null,
+          "metric": "none"
+        }
+      }
+    }
+  ],
+  "status": "passed",
+  "model": "deepseek-flash",
+  "verified_at_shanghai": "2026-10-20T16:38:55+08:00",
+  "manual_sql_review": "已复核生成 SQL 的商品、日期、有效状态、历史成本、库存关联与列含义；与标准答案一致。"
+}
